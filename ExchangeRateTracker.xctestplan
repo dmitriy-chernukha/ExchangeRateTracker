@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "FFC56FEC-47A7-4DCC-860B-8DF9E259B204",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:ExchangeRateTracker.xcodeproj",
+        "identifier" : "321FDAA42DA0176C0046DB36",
+        "name" : "ExchangeRateTrackerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
