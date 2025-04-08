@@ -6,15 +6,20 @@ protocol CurrencyRepositoryProtocol {
 
 final class CurrencyRepository {
     private let networkService: NetworkServiceProtocol
-    private let cache = CacheService.shared
+    private let cache: CacheStorage
     private let cacheKey = "cached_currency_items"
 
-    init(networkService: NetworkServiceProtocol) {
+    init(networkService: NetworkServiceProtocol, cache: CacheStorage = CacheService.shared) {
         self.networkService = networkService
+        self.cache = cache
     }
 
     func fetchItems(for codes: [String], base: String = "USD") async throws -> [ExchangeItem] {
 
+        guard codes.isEmpty == false else {
+            return []
+        }
+        
         let response: CurrencyRates = try await networkService.fetch(
             CurrencyAPI.liveRates(base: base, symbols: codes)
         )

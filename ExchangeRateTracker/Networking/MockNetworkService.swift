@@ -1,9 +1,9 @@
 import Foundation
 
 final class MockNetworkService: NetworkServiceProtocol, @unchecked Sendable {
-    var result: Result<CurrencyRates, Error>
+    var result: Result<Decodable, Error>
 
-    init(result: Result<CurrencyRates, Error>) {
+    init(result: Result<Decodable, Error>) {
         self.result = result
     }
 

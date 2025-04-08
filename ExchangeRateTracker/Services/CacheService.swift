@@ -1,6 +1,11 @@
 import Foundation
 
-final class CacheService {
+protocol CacheStorage {
+    func save<T: Codable>(_ object: T, forKey key: String)
+    func load<T: Codable>(forKey key: String, as type: T.Type) -> T?
+}
+
+final class CacheService: CacheStorage {
     static let shared = CacheService()
     private let defaults = UserDefaults.standard
 

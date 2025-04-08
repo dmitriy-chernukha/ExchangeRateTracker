@@ -2,19 +2,37 @@ import SwiftUI
 
 struct ExchangeRatesView: View {
     
-//    @StateObject private var viewModel = ExchangeRatesViewModel(
-//        currencyRepo: CurrencyRepository(networkService: NetworkService(), cache: CacheService()),
-//        cryptoRepo: CryptoRepository(networkService: NetworkService(), cache: CacheService()),
-//        cache: CacheService()
-//    )
-    @ObservedObject var viewModel: ExchangeRatesViewModel
+@ObservedObject var viewModel: ExchangeRatesViewModel
     
     var body: some View {
         NavigationView {
             Group {
-                if viewModel.items.isEmpty && !viewModel.isLoading {
+                if let errorMessage = viewModel.errorMessage {
+                    VStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 40))
+                            .foregroundColor(.orange)
+                            .padding(.top, 40)
+                        Text("Failed to load data")
+                            .font(.headline)
+                        Text(errorMessage.message)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        
+                        Button("Retry") {
+                            Task {
+                                await viewModel.load()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.top)
+                        
+                        Spacer()
+                    }
+
+                } else if viewModel.items.isEmpty && !viewModel.isLoading {
                     Text("No data available, please add an assets")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.primary)
                         .padding()
                 } else {
                     List {
@@ -56,17 +74,9 @@ struct ExchangeRatesView: View {
             .onDisappear {
                 viewModel.stopAutoRefresh()
             }
-            .alert(item: $viewModel.errorMessage) { alert in
-                Alert(
-                    title: Text("Error"),
-                    message: Text(alert.message),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
             .animation(.spring(), value: viewModel.items)
         }
         .tint(.primary)
-
     }
     
     private func addButtonView() -> some View {

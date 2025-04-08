@@ -63,11 +63,8 @@ final class ExchangeRatesViewModel: ObservableObject {
         await MainActor.run {
             isLoading = true
         }
+        
         do {
-            guard cryptoCodes.isEmpty == false, currencyCodes.isEmpty == false else {
-                return
-            }
-
             async let fiat = currencyRepo.fetchItems(for: currencyCodes)
             async let crypto = cryptoRepo.fetchItems(for: cryptoCodes)
             let (fiatItems, cryptoItems) = try await (fiat, crypto)
@@ -82,19 +79,21 @@ final class ExchangeRatesViewModel: ObservableObject {
                         return $0.type.rawValue < $1.type.rawValue
                     }
                 }
+                isLoading = false
+                errorMessage = nil
             }
         } catch {
             print(error.localizedDescription)
             
             await MainActor.run {
-                self.errorMessage = AlertMessage(message: "Unable to fetch data. Showing last known values. Please try again later.")
+                isLoading = false
+                self.errorMessage = AlertMessage(message: error.localizedDescription)
             }
         }
         
         await MainActor.run {
             isLoading = false
         }
-
     }
     
     func remove(item: ExchangeItem) {

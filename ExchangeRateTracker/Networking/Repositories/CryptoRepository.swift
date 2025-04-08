@@ -5,16 +5,21 @@ protocol CryptoRepositoryProtocol {
 
 final class CryptoRepository: CryptoRepositoryProtocol {
     private let networkService: NetworkServiceProtocol
-    private let cache = CacheService.shared
+    private let cache: CacheStorage
     private let cacheKey = "cached_crypto_items"
 
 
-    init(networkService: NetworkServiceProtocol) {
+    init(networkService: NetworkServiceProtocol, cache: CacheStorage = CacheService.shared) {
         self.networkService = networkService
+        self.cache = cache
     }
 
     func fetchItems(for symbols: [String], in currency: String = "usd") async throws -> [ExchangeItem] {
 
+        guard symbols.isEmpty == false else {
+            return []
+        }
+        
         let response: CryptoCompareFullPriceResponse = try await networkService.fetch(
             CryptoAPI.fullPrices(symbols: symbols, convert: currency)
         )
@@ -37,9 +42,7 @@ final class CryptoRepository: CryptoRepositoryProtocol {
     }
     
     func removeUnselectedFromCache(selected: [String]) {
-        let cache = CacheService.shared
         let all = cache.load(forKey: cacheKey, as: [ExchangeItem].self) ?? []
-
         let filtered = all.filter { selected.contains($0.code) }
         cache.save(filtered, forKey: cacheKey)
     }
